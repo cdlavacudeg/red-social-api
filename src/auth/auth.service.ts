@@ -6,6 +6,8 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dtos';
 import * as bcrypt from 'bcrypt';
 import * as sgMail from '@sendgrid/mail';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 @Injectable()
 export class AuthService {
@@ -13,6 +15,7 @@ export class AuthService {
     private prisma: PrismaService,
     @Inject(configuration.KEY) private configService: ConfigType<typeof configuration>,
     private jwtService: JwtService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
 
   async login(loginDto: LoginDto) {
@@ -39,6 +42,7 @@ export class AuthService {
     delete user.password;
 
     const token = await this.singToken(user.id);
+    this.cacheManager.set(`user-${user.id}-token`, token, 0);
     return { user, token };
   }
 
@@ -70,7 +74,7 @@ export class AuthService {
       text: 'Congratulations, your user has been successfully created',
     };
 
-    let email;
+    let email: [sgMail.ClientResponse, object] | null;
     try {
       email = await sgMail.send(msg);
     } catch (err) {
@@ -88,10 +92,14 @@ export class AuthService {
     const secret = this.configService.jwt.loginSecret;
 
     const token = await this.jwtService.signAsync(payload, {
-      expiresIn: '24h',
       secret,
     });
 
     return token;
+  }
+
+  async logout(userId: number) {
+    this.cacheManager.del(`user-${userId}-token`);
+    return true;
   }
 }
