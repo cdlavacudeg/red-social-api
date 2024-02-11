@@ -1,4 +1,4 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { PassportStrategy } from '@nestjs/passport';
 import configuration from 'config/configuration';
@@ -21,8 +21,13 @@ export class JwtStrategy extends PassportStrategy(Strategy, 'jwt') {
     const user = await this.prismaService.user.findUnique({
       where: {
         id: payload.sub,
+        deletedAt: null,
       },
     });
+
+    if (!user) {
+      throw new UnauthorizedException('User no longer has access');
+    }
 
     delete user.password;
     return user;

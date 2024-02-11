@@ -26,6 +26,10 @@ export class AuthService {
       throw new UnauthorizedException('Email or password invalid');
     }
 
+    if (user.deletedAt) {
+      throw new UnauthorizedException('User no longer has access');
+    }
+
     const passwordMatch = await bcrypt.compare(loginDto.password, user.password);
 
     if (!passwordMatch) {
@@ -84,7 +88,7 @@ export class AuthService {
     const secret = this.configService.jwt.loginSecret;
 
     const token = await this.jwtService.signAsync(payload, {
-      // expiresIn: '6h',
+      expiresIn: '24h',
       secret,
     });
 
