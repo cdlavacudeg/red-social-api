@@ -6,7 +6,11 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.enableCors();
-  const swaggerDocumentConfig = new DocumentBuilder().setTitle('Red-Social API').setVersion('1.0').build();
+  const swaggerDocumentConfig = new DocumentBuilder()
+    .setTitle('Red-Social API')
+    .setVersion('1.0')
+    .addBearerAuth()
+    .build();
   const swaggerDocument = SwaggerModule.createDocument(app, swaggerDocumentConfig);
 
   SwaggerModule.setup('/documentation', app, swaggerDocument);
