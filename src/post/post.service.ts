@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { PostDto, UpdatePostDto } from './dtos';
+import { DeletePostDto, PostDto, UpdatePostDto } from './dtos';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
@@ -25,6 +25,17 @@ export class PostService {
       data: {
         title: updatePostDto.title,
         content: updatePostDto.content,
+      },
+    });
+  }
+
+  async deletePost(deletePostDto: DeletePostDto) {
+    return await this.prisma.post.update({
+      where: {
+        id: deletePostDto.id,
+      },
+      data: {
+        deletedAt: new Date(),
       },
     });
   }

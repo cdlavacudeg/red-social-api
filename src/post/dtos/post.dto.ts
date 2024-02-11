@@ -19,3 +19,10 @@ export class UpdatePostDto extends PartialType(PostDto) {
   @ApiProperty()
   id: number;
 }
+
+export class DeletePostDto {
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty()
+  id: number;
+}
