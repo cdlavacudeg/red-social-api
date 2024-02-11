@@ -1,9 +1,9 @@
-import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { ConfigType } from '@nestjs/config';
 import { JwtService } from '@nestjs/jwt';
 import configuration from 'config/configuration';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { LoginDto } from './dtos';
+import { LoginDto, RegisterDto } from './dtos';
 import * as bcrypt from 'bcrypt';
 
 @Injectable()
@@ -35,6 +35,28 @@ export class AuthService {
 
     const token = await this.singToken(user.id);
     return { user, token };
+  }
+
+  async register(registerDto: RegisterDto) {
+    const emailInDb = await this.prisma.user.findUnique({
+      where: {
+        email: registerDto.email,
+      },
+    });
+
+    if (emailInDb) {
+      throw new BadRequestException('Email is invalid');
+    }
+
+    const user = await this.prisma.user.create({
+      data: {
+        fullName: registerDto.fullName,
+        email: registerDto.email,
+        age: registerDto.age,
+        password: await bcrypt.hash(registerDto.password, 10),
+      },
+    });
+    return user;
   }
 
   async singToken(userId: number): Promise<string> {
