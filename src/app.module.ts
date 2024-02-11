@@ -4,7 +4,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './user/user.module';
 import { PostModule } from './post/post.module';
-import configuration from 'config/configuration';
+import configuration, { RedisOptions } from 'config/configuration';
 import { CacheModule } from '@nestjs/cache-manager';
 import { JwtModule } from '@nestjs/jwt';
 
@@ -15,7 +15,7 @@ import { JwtModule } from '@nestjs/jwt';
       load: [configuration],
     }),
     JwtModule.register({ global: true }),
-    CacheModule.register({ isGlobal: true }),
+    CacheModule.registerAsync(RedisOptions),
     PrismaModule,
     AuthModule,
     UserModule,

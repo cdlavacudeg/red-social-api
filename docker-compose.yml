@@ -12,3 +12,12 @@ services:
       - 5432:5432
     volumes:
       - ${POSTGRES_DATA_DIR}:/var/lib/postgres/data
+
+  cache:
+    image: redis:7.2.4-alpine
+    restart: on-failure
+    ports:
+      - 6379:6379
+    command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - ${REDIS_DATA_DIR}:/data
