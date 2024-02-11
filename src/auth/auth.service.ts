@@ -5,6 +5,7 @@ import configuration from 'config/configuration';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { LoginDto, RegisterDto } from './dtos';
 import * as bcrypt from 'bcrypt';
+import * as sgMail from '@sendgrid/mail';
 
 @Injectable()
 export class AuthService {
@@ -56,7 +57,23 @@ export class AuthService {
         password: await bcrypt.hash(registerDto.password, 10),
       },
     });
-    return user;
+
+    sgMail.setApiKey(this.configService.sendgrid.apiKey);
+    const msg = {
+      to: `${registerDto.email}`,
+      from: this.configService.sendgrid.sender,
+      subject: 'User registration Successfull',
+      text: 'Congratulations, your user has been successfully created',
+    };
+
+    let email;
+    try {
+      email = await sgMail.send(msg);
+    } catch (err) {
+      email = null;
+    }
+
+    return { user, email };
   }
 
   async singToken(userId: number): Promise<string> {

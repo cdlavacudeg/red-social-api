@@ -11,5 +11,9 @@ export default registerAs('config', () => {
     jwt: {
       loginSecret: process.env.JWT_LOGIN_SECRET,
     },
+    sendgrid: {
+      apiKey: process.env.SENDGRID_API_KEY,
+      sender: process.env.SENDGRID_SENDER_EMAIL,
+    },
   };
 });
