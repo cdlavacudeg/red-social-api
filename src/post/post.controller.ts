@@ -1,9 +1,10 @@
-import { Body, Controller, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/auth/guards';
 import { PostService } from './post.service';
 import { GetUser } from 'src/auth/decorators';
-import { PostDto } from './dtos';
+import { PostDto, UpdatePostDto } from './dtos';
+import { OwnershipPostGuard } from './guards';
 
 @ApiTags('Post')
 @ApiBearerAuth()
@@ -15,5 +16,11 @@ export class PostController {
   @Post('/')
   async createPost(@GetUser('id') userId: number, @Body() postDto: PostDto) {
     return this.postService.createPost(userId, postDto);
+  }
+
+  @Put('/')
+  @UseGuards(OwnershipPostGuard)
+  async updatePost(@Body() updatePostDto: UpdatePostDto) {
+    return this.postService.updatePost(updatePostDto);
   }
 }

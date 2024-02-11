@@ -1,5 +1,5 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, PartialType } from '@nestjs/swagger';
+import { IsInt, IsNotEmpty, IsString } from 'class-validator';
 
 export class PostDto {
   @IsString()
@@ -11,4 +11,11 @@ export class PostDto {
   @IsNotEmpty()
   @ApiProperty()
   content: string;
+}
+
+export class UpdatePostDto extends PartialType(PostDto) {
+  @IsInt()
+  @IsNotEmpty()
+  @ApiProperty()
+  id: number;
 }
