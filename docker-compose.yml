@@ -4,6 +4,7 @@ services:
   database:
     image: postgres:16.1
     restart: on-failure
+    container_name: databasepostgres
     environment:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_USER: ${POSTGRES_USER}
@@ -16,8 +17,21 @@ services:
   cache:
     image: redis:7.2.4-alpine
     restart: on-failure
+    container_name: cacheredis
     ports:
       - 6379:6379
     command: redis-server --save 20 1 --loglevel warning --requirepass ${REDIS_PASSWORD}
     volumes:
       - ${REDIS_DATA_DIR}:/data
+
+  api:
+    build: .
+    command: pnpm run start:prod
+    restart: on-failure
+    ports:
+      - ${API_PORT}:${API_PORT}
+    environment:
+      - DATABASE_URL=postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}
+    depends_on:
+      - database
+      - cache

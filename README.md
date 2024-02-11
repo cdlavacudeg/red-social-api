@@ -1,15 +1,35 @@
-## Installation
+# Red-Social API
+
+## Running the app locally
+
+Get running the database with postgres and redis before hand(you could use docker compose with the database and cache
+sections).
+Fill the .env file with the correct parameters.
+
+### Requirements
+
+- NodeJs
+- pnpm installed
 
 ```bash
 $ pnpm install
+$ npx prisma generate
+$ npx prisma migrate dev --name init
+$ pnpm build
+$ pnpm run start:prod
 ```
 
-## Running the app
+## Running the app with docker
+
+Fill the .env file with the correct parameters.
+Keep in mind the hosts for the database and the cache are different when running the app with docker, you must use the
+container name.
 
 ```bash
-$ docker compose up -d database # Run the database with docker compose -> see .env.example
-$ npx prisma migrate reset # Reset the database and rerun the migrations
-$ pnpm run start # Start the aplication
+$ docker compose build api
+$ docker compose up -d # wait for all to be running
+$ docker exec -it [api_container_id] sh
+$ npx prisma migrate dev --name init # First migration # On the api container
 ```
 
 ## Prisma
